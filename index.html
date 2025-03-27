@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Estado de Ánimo y Canciones</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <img src="logo.jpeg" alt="Logo de la empresa">
+
+    <h2>Selecciona tu estado de ánimo</h2>
+    <input type="text" id="nombreUsuario" placeholder="Ingresa tu nombre" />
+    <select id="estadoAnimo">
+      <option value="feliz">Feliz</option>
+      <option value="triste">Triste</option>
+      <option value="relajado">Relajado</option>
+      <option value="enojado">Enojado</option>
+    </select>
+    <button id="guardarEstado">Guardar Estado</button>
+
+    <h2 id="tituloCancion" style="display: none">Canción Recomendada:</h2>
+    <p id="cancionRecomendada" style="display: none"></p>
+    <iframe
+      id="player"
+      style="display: none"
+      width="560"
+      height="315"
+      frameborder="0"
+      allowfullscreen
+    ></iframe>
+
+    <h2>Autenticación</h2>
+    <input type="email" id="email" placeholder="Correo electrónico" />
+    <input type="password" id="password" placeholder="Contraseña" />
+    <button id="registrarse">Registrarse</button>
+    <button id="iniciarSesion">Iniciar Sesión</button>
+    <button id="cerrarSesion" style="display: none">Cerrar Sesión</button>
+
+    <div
+      id="notificacion"
+      style="
+        display: none;
+        padding: 10px;
+        background: lightgreen;
+        margin-top: 10px;
+      "
+    ></div>
+
+    <!-- Firebase -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        query,
+        where,
+        onSnapshot,
+        deleteDoc,
+        doc,
+      } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        signOut,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBVNQysEQse3mXOzrn95qKCew-4Y5bU_m0",
+        authDomain: "actividadbdatos-3e9ba.firebaseapp.com",
+        projectId: "actividadbdatos-3e9ba",
+        storageBucket: "actividadbdatos-3e9ba.appspot.com",
+        messagingSenderId: "891278365050",
+        appId: "1:891278365050:web:b724f2270dfe62ff4d46c3",
+      };
+
+      // Inicializar Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
+
+      console.log("✅ Firebase cargado correctamente:", app);
+
+      // Canciones recomendadas
+      const canciones = {
+        feliz: {
+          nombre: "Happy - Pharrell Williams",
+          url: "https://www.youtube.com/embed/ZbZSe6N_BXs",
+        },
+        triste: {
+          nombre: "Someone Like You - Adele",
+          url: "https://www.youtube.com/embed/hLQl3WQQoQ0",
+        },
+        relajado: {
+          nombre: "Weightless - Marconi Union",
+          url: "https://www.youtube.com/embed/UfcAVejslrU",
+        },
+        enojado: {
+          nombre: "Break Stuff - Limp Bizkit",
+          url: "https://www.youtube.com/embed/ZpUYjpKg9KY",
+        },
+      };
+
+      function mostrarNotificacion(mensaje) {
+        const notificacion = document.getElementById("notificacion");
+        notificacion.innerText = mensaje;
+        notificacion.style.display = "block";
+        setTimeout(() => {
+          notificacion.style.display = "none";
+        }, 3000);
+      }
+
+      document
+        .getElementById("guardarEstado")
+        .addEventListener("click", async () => {
+          const nombre = document.getElementById("nombreUsuario").value;
+          const estado = document.getElementById("estadoAnimo").value;
+          const user = auth.currentUser;
+
+          if (!user) {
+            alert("Debes iniciar sesión para guardar tu estado de ánimo.");
+            return;
+          }
+          if (!nombre) {
+            alert("Por favor, ingresa tu nombre.");
+            return;
+          }
+          if (!canciones[estado]) {
+            alert("Estado de ánimo no válido.");
+            return;
+          }
+
+          try {
+            await addDoc(collection(db, "estadosAnimo"), {
+              nombre,
+              estado,
+              userId: user.uid,
+            });
+            mostrarNotificacion("Estado de ánimo guardado correctamente.");
+            document.getElementById("tituloCancion").style.display = "block";
+            document.getElementById(
+              "cancionRecomendada"
+            ).innerText = `Canción: ${canciones[estado].nombre}`;
+            document.getElementById("player").src = canciones[estado].url;
+            document.getElementById("player").style.display = "block";
+          } catch (error) {
+            console.error("❌ Error al guardar en Firebase:", error);
+          }
+        });
+
+      function cargarEstadosUsuario(user) {
+        const lista = document.getElementById("listaEstados");
+        if (lista) lista.innerHTML = "";
+
+        if (!user) return;
+
+        const q = query(
+          collection(db, "estadosAnimo"),
+          where("userId", "==", user.uid)
+        );
+        onSnapshot(q, (snapshot) => {
+          if (lista) lista.innerHTML = "";
+          snapshot.forEach((docSnap) => {
+            const li = document.createElement("li");
+            li.textContent = `${docSnap.data().nombre} está ${
+              docSnap.data().estado
+            }`;
+
+            const btnEliminar = document.createElement("button");
+            btnEliminar.textContent = "Eliminar";
+            btnEliminar.addEventListener("click", async () => {
+              await deleteDoc(doc(db, "estadosAnimo", docSnap.id));
+              mostrarNotificacion("Estado eliminado correctamente.");
+            });
+
+            li.appendChild(btnEliminar);
+            if (lista) lista.appendChild(li);
+          });
+        });
+      }
+
+      onAuthStateChanged(auth, (user) => {
+        document.getElementById("cerrarSesion").style.display = user
+          ? "block"
+          : "none";
+        cargarEstadosUsuario(user);
+      });
+
+      document
+        .getElementById("cerrarSesion")
+        .addEventListener("click", async () => {
+          await signOut(auth);
+          mostrarNotificacion("Sesión cerrada.");
+        });
+
+      document
+        .getElementById("iniciarSesion")
+        .addEventListener("click", async () => {
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          await signInWithEmailAndPassword(auth, email, password);
+          mostrarNotificacion("Inicio de sesión exitoso.");
+        });
+
+      document
+        .getElementById("registrarse")
+        .addEventListener("click", async () => {
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          await createUserWithEmailAndPassword(auth, email, password);
+          mostrarNotificacion("Usuario registrado correctamente.");
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,148 @@
+/* Estilos generales */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #121212; /* Fondo oscuro estilo Spotify */
+  color: #fff;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2 {
+  font-weight: bold;
+}
+
+h1 {
+  color: #1DB954;
+  margin-top: 20px;
+  font-size: 2.5em;
+}
+
+input, select, button {
+  background-color: #282828;
+  border: none;
+  padding: 12px;
+  color: white;
+  border-radius: 20px;
+  margin: 10px;
+  font-size: 16px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+  width: 80%; /* Hacer que los campos se ajusten al 80% del ancho */
+  max-width: 400px; /* Asegura que no crezcan demasiado */
+}
+
+button {
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+button:hover {
+  background-color: #1DB954;
+  color: black;
+  transform: scale(1.05);
+}
+
+#listaEstados {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+#listaEstados li {
+  background-color: #181818;
+  margin: 5px auto;
+  padding: 15px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 400px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+  transition: 0.3s;
+}
+
+#listaEstados li:hover {
+  background-color: #1DB954;
+  color: black;
+  transform: scale(1.05);
+}
+
+iframe {
+  border-radius: 15px;
+  margin-top: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 560px; /* Limitar el tamaño en pantallas grandes */
+  height: 315px;
+}
+
+button.delete {
+  background-color: #d32f2f;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 15px;
+  font-size: 14px;
+}
+
+button.delete:hover {
+  background-color: #ff1744;
+  transform: scale(1.1);
+}
+
+/* Adaptación para pantallas pequeñas (móviles) */
+@media (max-width: 600px) {
+  /* Ajustes para inputs, selects y botones */
+  input, select, button {
+    width: 90%;
+    font-size: 14px; /* Asegurarse de que los textos se adapten */
+  }
+
+  h1 {
+    font-size: 2em; /* Reducir tamaño del título en móviles */
+  }
+
+  h2 {
+    font-size: 1.5em;
+  }
+
+  /* Cambiar la disposición de la lista de estados */
+  #listaEstados li {
+    flex-direction: column;
+    text-align: center;
+    width: 90%; /* Ajustar el tamaño de los elementos */
+  }
+
+  #tituloCancion, #cancionRecomendada {
+    font-size: 1.2em;
+  }
+
+  iframe {
+    margin-top: 10px;
+    height: 250px; /* Reducir la altura del iframe en móviles */
+  }
+
+  /* Mejorar la disposición de la lista de canciones */
+  #listaCanciones li {
+    width: 80%;
+    margin: 10px auto;
+    font-size: 14px;
+  }
+
+  button.delete {
+    font-size: 12px; /* Reducir tamaño de fuente de botones en móvil */
+    padding: 6px 10px;
+  }
+}
+
+/* Estilo adicional para otros elementos si es necesario */
+#notificacion {
+  padding: 10px;
+  background: lightgreen;
+  margin-top: 10px;
+  font-size: 14px;
+  border-radius: 10px;
+  width: 80%;
+  margin: 10px auto;
+}
